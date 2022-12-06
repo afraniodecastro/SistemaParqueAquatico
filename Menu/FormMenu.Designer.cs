@@ -104,8 +104,8 @@
             this.removerToolStripMenuItem,
             this.alterarToolStripMenuItem2});
             this.alterarToolStripMenuItem.Name = "alterarToolStripMenuItem";
-            this.alterarToolStripMenuItem.Size = new System.Drawing.Size(244, 46);
-            this.alterarToolStripMenuItem.Text = "Endereço";
+            this.alterarToolStripMenuItem.Size = new System.Drawing.Size(261, 46);
+            this.alterarToolStripMenuItem.Text = "Dependente";
             // 
             // cadastrarToolStripMenuItem3
             // 
