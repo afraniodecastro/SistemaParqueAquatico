@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using MySql.Data.MySqlClient;//arquivo de conexão com banco de daods
+
 namespace Menu
 {
     public partial class FormCadCliente : Form
@@ -16,12 +18,29 @@ namespace Menu
         public string dataNascimento;
         public string senha1, senha2;
         public string valor, email, tipoCota, sexo, usuario,telefone;
+        string acao = "Inserir";
+        int codigoAssociado = 0;
+
+        private MySqlConnection conexao;
+        //private string dados_acesso = ("server=localhost;port=3306;User Id=root;database=clube;password=root");
+        private string dados_acesso = ("datasource=localhost;username=root;password=root;database=clube");
+        private void CBtipoCota_SelectedIndexChanged(object sender, EventArgs e)
+        {
+           // MessageBox.Show((string)CBtipoCota.SelectedItem);
+            if((string)CBtipoCota.SelectedItem == "Familiar")
+            {
+                TBvalor.Text = "120"; 
+            }else if ((string)CBtipoCota.SelectedItem == "Individual")
+            {
+                TBvalor.Text = "50";
+            }
+        }
 
         public FormCadCliente()
         {
             InitializeComponent();
             CBtipoCota.Items.Add("Familiar");
-            CBtipoCota.Items.Add("Individual");
+            CBtipoCota.Items.Add("Individual"); 
         }
 
         private void BTCancelar_Click(object sender, EventArgs e)
@@ -96,7 +115,6 @@ namespace Menu
                 {
                     LBnome.ForeColor = Color.Black;
                     LBnome.Font = new Font(LBnome.Font, FontStyle.Regular);
-                    nome = TBNome.Text;
                 }
 
                 if (TBtelefone.Text == "")
@@ -108,7 +126,6 @@ namespace Menu
                 {
                     LBtelefone.ForeColor = Color.Black;
                     LBtelefone.Font = new Font(LBtelefone.Font, FontStyle.Regular);
-                    telefone = TBtelefone.Text;
                 }
 
                 if (TBDataNascimento.Text == "")
@@ -120,7 +137,6 @@ namespace Menu
                 {
                     LBdataNascimento.ForeColor = Color.Black;
                     LBdataNascimento.Font = new Font(LBdataNascimento.Font, FontStyle.Regular);
-                    dataNascimento = TBDataNascimento.Text;
                 }
 
                 if (TBsenha1.Text == "")
@@ -132,7 +148,6 @@ namespace Menu
                 {
                     LBsenha1.ForeColor = Color.Black;
                     LBsenha1.Font = new Font(LBsenha1.Font, FontStyle.Regular);
-                    senha1 = TBsenha1.Text;
                 }
 
                 if (TBsenha2.Text == "")
@@ -144,7 +159,6 @@ namespace Menu
                 {
                     LBsenha2.ForeColor = Color.Black;
                     LBsenha2.Font = new Font(LBsenha2.Font, FontStyle.Regular);
-                    senha2 = TBsenha2.Text;
                 }
 
                 if (TBusuario.Text == "")
@@ -156,7 +170,6 @@ namespace Menu
                 {
                     LBusuario.ForeColor = Color.Black;
                     LBusuario.Font = new Font(LBusuario.Font, FontStyle.Regular);
-                    usuario = TBusuario.Text;
                 }
 
                 if (TBvalor.Text == "")
@@ -168,7 +181,6 @@ namespace Menu
                 {
                     LBvalor.ForeColor = Color.Black;
                     LBvalor.Font = new Font(LBvalor.Font, FontStyle.Regular);
-                    valor = TBvalor.Text;
                 }
 
                 if (TTBemail.Text == "")
@@ -180,7 +192,6 @@ namespace Menu
                 {
                     LBemail.ForeColor = Color.Black;
                     LBemail.Font = new Font(LBemail.Font, FontStyle.Regular);
-                    email = TTBemail.Text;
                 }
 
                 if ((RBmasculino.Checked == false) && (RBfeminino.Checked == false))
@@ -192,14 +203,6 @@ namespace Menu
                 {
                     LBsexo.ForeColor = Color.Black;
                     LBsexo.Font = new Font(LBsexo.Font, FontStyle.Regular);
-                    if (RBmasculino.Checked)
-                    {
-                        sexo = "Masculino";
-                    }
-                    else
-                    {
-                        sexo = "Feminino";
-                    }
                 }
 
                 if (CBtipoCota.SelectedItem == null)
@@ -210,16 +213,7 @@ namespace Menu
                 else
                 {
                     LBtipoCota.ForeColor = Color.Black;
-                    LBtipoCota.Font = new Font(LBtipoCota.Font, FontStyle.Regular);
-                    tipoCota = "";
-                    if (CBtipoCota.SelectedItem == "Familiar"){
-                        tipoCota = "Familiar";
-                    }
-                    else
-                    {
-                        tipoCota = "Individual";
-                    }
-                    
+                    LBtipoCota.Font = new Font(LBtipoCota.Font, FontStyle.Regular);                    
                 }
             }
             else
@@ -242,6 +236,78 @@ namespace Menu
                     LBsenha1.Font = new Font(LBsenha1.Font, FontStyle.Regular);
                     LBsenha2.Font = new Font(LBsenha2.Font, FontStyle.Regular);
 
+                    nome = TBNome.Text;
+                    telefone = TBtelefone.Text;
+                    email = TTBemail.Text;
+                    valor = TBvalor.Text;
+                    dataNascimento = formataData(TBDataNascimento.Text, "US");
+
+                    usuario = TBusuario.Text;
+                    senha1 = TBsenha1.Text;
+                    tipoCota = "";
+                    if ((string)CBtipoCota.SelectedItem == "Familiar")
+                    {
+                        tipoCota = "F";
+                    }
+                    else
+                    {
+                        tipoCota = "I";
+                    }
+
+                    if (RBmasculino.Checked)
+                    {
+                        sexo = "M";
+                    }
+                    else
+                    {
+                        sexo = "F";
+                    }
+                    try
+                    {
+                        //Criar Conexao com o Mysql
+                        conexao = new MySqlConnection(dados_acesso);
+                        string sql = "";
+                        if (acao == "Inserir")
+                        {
+                            sql = "INSERT INTO associado (nome,data_nascimento,sexo,email,tipo_cota,valor_cota,telefone,usuario,senha) VALUES('" + nome + "','"
+                                                + dataNascimento + "','"
+                                                + sexo + "','"
+                                                + email + "','"
+                                                + tipoCota + "','"
+                                                + valor + "','"
+                                                + telefone + "','"
+                                                + usuario + "','"
+                                                + senha1 + "')";
+                        }else if (acao == "Alterar")
+                        {
+                            sql = "UPDATE associado SET     nome = '"+nome+"', " +
+                                                            "data_nascimento = '"+dataNascimento+"', " +
+                                                            "sexo = '"+sexo+"', " +
+                                                            "email = '"+email+"', " +
+                                                            "tipo_cota = '"+tipoCota+"', " +
+                                                            "valor_cota = '"+valor+"', " +
+                                                            "telefone = '"+telefone+"', " +
+                                                            "usuario = '"+usuario+"', " +
+                                                            "senha = '"+senha1+"'" +
+                                   "WHERE (codigo = '"+codigoAssociado+ "');";
+                        }
+                        MySqlCommand comando = new MySqlCommand(sql,conexao);
+                        
+                        conexao.Open();
+                        comando.ExecuteNonQuery();
+
+                        MessageBox.Show("Sucesso. Associado Cadastrado com sucesso", "SUCESSO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        // conexao.Close();
+                    }
+                    catch (Exception erro)
+                    {
+                        MessageBox.Show("Falha de acesso ao BD" + erro,"ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        conexao.Close();
+                    }
+
                     TBNome.Text = "";
                     TBDataNascimento.Text = "";
                     TBsenha1.Text = "";
@@ -253,14 +319,104 @@ namespace Menu
                     RBmasculino.Checked = false;
                     RBfeminino.Checked = false;
                     CBtipoCota.SelectedItem = null;
-
-                    FmostraDados fmd = new FmostraDados(this);
-                    fmd.ShowDialog();
                 }
                 
-            }        
-            
+            }    
+        }
+        private string formataData(string dataBR, string tipo)
+        {
+            string tempDia, tempMes, tempAno, dataUSBR="";
+            tempDia = dataBR;
+            tempMes = dataBR;
+            tempAno = dataBR;
+            if (tipo == "US")
+            {
+                tempDia = tempDia.Substring(0, 2);
+                tempMes = tempMes.Substring(3, 2);
+                tempAno = tempAno.Substring(6, 4);
 
+                dataUSBR = tempAno + "-" + tempMes + "-" + tempDia;
+            }
+            else
+            {
+                tempAno = tempAno.Substring(0, 4);
+                tempMes = tempMes.Substring(5, 2);
+                tempDia = tempDia.Substring(8, 2);
+                
+                dataUSBR = tempDia + "/" + tempMes + "/" + tempAno;
+            }
+            return dataUSBR;
+        }
+
+        public void AlteraAssociado(string idAssociado)
+        {
+
+            try
+            {
+                conexao = new MySqlConnection(dados_acesso);
+                string sql = "SELECT * FROM associado WHERE codigo ="+idAssociado+";";
+
+                conexao.Open();
+                MySqlCommand comando = new MySqlCommand(sql, conexao);
+
+                MySqlDataReader reader = comando.ExecuteReader();
+                while (reader.Read())
+                {
+                    string[] linha =
+                    {
+                        reader.GetString(0), //codigo
+                        reader.GetString(1), //nome
+                        reader.GetString(2), //data nascimento
+                        reader.GetString(3), //sexo
+                        reader.GetString(4), //email
+                        reader.GetString(5), //tipo cota
+                        reader.GetString(6), //valor cota
+                        reader.GetString(7), // telefone
+                        reader.GetString(8), // usuario
+                        reader.GetString(9) //senha 
+                    };
+                    
+                    TBNome.Text             = reader.GetString(1); //nome
+                    TBDataNascimento.Text   = reader.GetString(2);
+                    if(reader.GetString(3) == "F")
+                    {
+                        RBfeminino.Checked = true;
+                    }
+                    else
+                    {
+                        RBmasculino.Checked = true;
+                    }
+                    TTBemail.Text = reader.GetString(4); //email
+                    if(reader.GetString(5) == "I")
+                    {
+                        CBtipoCota.SelectedItem = "Individual";
+                    }
+                    else
+                    {
+                        CBtipoCota.SelectedItem = "Familiar";
+                    }
+                    TBvalor.Text = reader.GetString(6);     //valor cota
+                    TBtelefone.Text = reader.GetString(7);  // telefone
+                    TBusuario.Text = reader.GetString(8);   // usuario
+                    TBsenha1.Text = reader.GetString(9);    //senha 
+                    TBsenha2.Text = reader.GetString(9);    //senha
+                    acao = "Alterar";
+                    codigoAssociado = int.Parse(idAssociado);
+                    this.ShowDialog();
+                }
+            }
+            catch (MySqlException erro)
+            {
+                MessageBox.Show("Ocorreu: " + erro.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception erro)
+            {
+                MessageBox.Show("Falha de acesso ao BD" + erro, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                conexao.Close();
+            }
         }
     }
 }

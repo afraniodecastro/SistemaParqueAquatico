@@ -32,7 +32,6 @@
             this.TTErro = new System.Windows.Forms.ToolTip(this.components);
             this.CBtipoCota = new System.Windows.Forms.ComboBox();
             this.TTWarning = new System.Windows.Forms.ToolTip(this.components);
-            this.TBDataNascimento = new System.Windows.Forms.TextBox();
             this.LBnome = new System.Windows.Forms.Label();
             this.TBNome = new System.Windows.Forms.TextBox();
             this.LBdataNascimento = new System.Windows.Forms.Label();
@@ -56,8 +55,9 @@
             this.button1 = new System.Windows.Forms.Button();
             this.BTSalvar = new System.Windows.Forms.Button();
             this.TTinfo = new System.Windows.Forms.ToolTip(this.components);
-            this.TBtelefone = new System.Windows.Forms.TextBox();
             this.LBtelefone = new System.Windows.Forms.Label();
+            this.TBDataNascimento = new System.Windows.Forms.MaskedTextBox();
+            this.TBtelefone = new System.Windows.Forms.MaskedTextBox();
             this.SuspendLayout();
             // 
             // TTErro
@@ -73,6 +73,7 @@
             this.CBtipoCota.Name = "CBtipoCota";
             this.CBtipoCota.Size = new System.Drawing.Size(361, 33);
             this.CBtipoCota.TabIndex = 14;
+            this.CBtipoCota.SelectedIndexChanged += new System.EventHandler(this.CBtipoCota_SelectedIndexChanged);
             // 
             // TTWarning
             // 
@@ -83,15 +84,6 @@
             this.TTWarning.StripAmpersands = true;
             this.TTWarning.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Warning;
             this.TTWarning.ToolTipTitle = "ATENÇÃO";
-            // 
-            // TBDataNascimento
-            // 
-            this.TBDataNascimento.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TBDataNascimento.Location = new System.Drawing.Point(508, 121);
-            this.TBDataNascimento.Name = "TBDataNascimento";
-            this.TBDataNascimento.Size = new System.Drawing.Size(224, 30);
-            this.TBDataNascimento.TabIndex = 3;
-            this.TTinfo.SetToolTip(this.TBDataNascimento, "Formato DD/MM/AAAA");
             // 
             // LBnome
             // 
@@ -257,6 +249,7 @@
             this.TBvalor.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.TBvalor.Location = new System.Drawing.Point(528, 246);
             this.TBvalor.Name = "TBvalor";
+            this.TBvalor.ReadOnly = true;
             this.TBvalor.Size = new System.Drawing.Size(204, 30);
             this.TBvalor.TabIndex = 23;
             // 
@@ -331,14 +324,6 @@
             this.TTinfo.ReshowDelay = 20;
             this.TTinfo.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
             // 
-            // TBtelefone
-            // 
-            this.TBtelefone.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TBtelefone.Location = new System.Drawing.Point(111, 306);
-            this.TBtelefone.Name = "TBtelefone";
-            this.TBtelefone.Size = new System.Drawing.Size(242, 30);
-            this.TBtelefone.TabIndex = 27;
-            // 
             // LBtelefone
             // 
             this.LBtelefone.AutoSize = true;
@@ -349,12 +334,32 @@
             this.LBtelefone.TabIndex = 26;
             this.LBtelefone.Text = "Telefone *";
             // 
+            // TBDataNascimento
+            // 
+            this.TBDataNascimento.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TBDataNascimento.Location = new System.Drawing.Point(487, 121);
+            this.TBDataNascimento.Mask = "00/00/0000";
+            this.TBDataNascimento.Name = "TBDataNascimento";
+            this.TBDataNascimento.Size = new System.Drawing.Size(245, 29);
+            this.TBDataNascimento.TabIndex = 28;
+            this.TBDataNascimento.ValidatingType = typeof(System.DateTime);
+            // 
+            // TBtelefone
+            // 
+            this.TBtelefone.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TBtelefone.Location = new System.Drawing.Point(108, 306);
+            this.TBtelefone.Mask = "(00) 00000-9999";
+            this.TBtelefone.Name = "TBtelefone";
+            this.TBtelefone.Size = new System.Drawing.Size(249, 29);
+            this.TBtelefone.TabIndex = 29;
+            // 
             // FormCadCliente
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(794, 517);
             this.Controls.Add(this.TBtelefone);
+            this.Controls.Add(this.TBDataNascimento);
             this.Controls.Add(this.LBtelefone);
             this.Controls.Add(this.TBusuario);
             this.Controls.Add(this.LBusuario);
@@ -376,7 +381,6 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.BTSalvar);
             this.Controls.Add(this.LBsexo);
-            this.Controls.Add(this.TBDataNascimento);
             this.Controls.Add(this.LBdataNascimento);
             this.Controls.Add(this.TBNome);
             this.Controls.Add(this.LBnome);
@@ -394,7 +398,6 @@
         private System.Windows.Forms.Label LBnome;
         private System.Windows.Forms.TextBox TBNome;
         private System.Windows.Forms.Label LBdataNascimento;
-        private System.Windows.Forms.TextBox TBDataNascimento;
         private System.Windows.Forms.Label LBsexo;
         private System.Windows.Forms.Button BTSalvar;
         private System.Windows.Forms.Button button1;
@@ -416,7 +419,8 @@
         private System.Windows.Forms.Label LBusuario;
         private System.Windows.Forms.TextBox TBusuario;
         private System.Windows.Forms.ToolTip TTinfo;
-        private System.Windows.Forms.TextBox TBtelefone;
         private System.Windows.Forms.Label LBtelefone;
+        private System.Windows.Forms.MaskedTextBox TBDataNascimento;
+        private System.Windows.Forms.MaskedTextBox TBtelefone;
     }
 }
